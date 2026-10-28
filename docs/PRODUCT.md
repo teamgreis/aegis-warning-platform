@@ -1,44 +1,42 @@
 # Product Definition
 
 ## Mission
-
-Make emergency-warning information easier to author, validate, target geographically, distribute through authorized channels, and audit—while preserving clear authority boundaries and avoiding dependence on any single delivery mechanism.
+Make emergency information easier to collect, assess, authorize, distribute through approved channels, and audit—without hiding uncertainty or overstating delivery.
 
 ## Intended users
+Authorized operators, local communities, responders, infrastructure operators, NGOs, public authorities, and partner organizations. Permissions and views vary by role; not every user can create or authorize an alert.
 
-- Authorized warning officers and reviewers
-- Emergency-management and public-sector partners
-- Technical operators and security staff
-- Researchers and evaluators in controlled test environments
-- Public users consuming published warning information
+## Core workflows
+1. Receive an incident report with source, time, location, and provenance.
+2. Validate and assess evidence; record uncertainty and conflicting reports.
+3. Draft guidance with a defined geographic and temporal scope.
+4. Review content and policy requirements.
+5. Obtain authorization from an appropriately privileged operator or approved procedure.
+6. Dispatch through simulated or individually approved channels.
+7. Track dispatch attempts, gateway acknowledgements, and confirmed reception separately.
+8. Update, expire, cancel, and review the incident with an auditable timeline.
 
-## Core principles
+## MVP scope
+- Server-side application and browser-based operator console.
+- Incident and source records using synthetic data.
+- Role-based access control and auditable state transitions.
+- Geographic and time scope for draft guidance.
+- Explicit uncertainty and source provenance.
+- Simulated dispatch adapters.
+- Searchable audit timeline, basic operational health, and export for testing.
+- Accessibility and multilingual-ready design.
 
-1. **Safety before reach:** incorrect or unauthorised alerts are a critical failure.
-2. **Multi-channel, not magical:** channel diversity improves resilience but cannot guarantee delivery.
-3. **Authority is explicit:** the platform does not confer authority to issue official warnings.
-4. **Fail closed for publication:** missing approval, invalid signatures, or invalid payloads block publication.
-5. **Traceability:** all consequential actions are attributable and reviewable.
-6. **Accessible by default:** plain language, localisation, screen-reader support, and usable contrast.
-7. **Privacy minimisation:** avoid collecting location or identity data unless required for a documented purpose.
-8. **Interoperability:** use documented standards and versioned adapters.
-9. **Test isolation:** simulated alerts must never be confused with real public warnings.
+## Non-goals for MVP
+- Issuing real public alerts.
+- Replacing government or emergency-service authority.
+- Military command or weapons control.
+- Guaranteed global reach or guaranteed reception.
+- Autonomous AI decisions that trigger real-world action.
+- Collecting broad personal data “just in case.”
+- Custom hardware or native mobile/desktop apps.
 
-## Non-goals for the MVP
+## Product safety requirements
+Every alert-like object must identify its status, source, scope, timestamps, authorization, and confidence/uncertainty. Test messages must be unmistakably labeled. Official alerts and AEGIS advisories must not be visually conflated. External formats do not bypass authorization.
 
-- Issuing official public warnings
-- Replacing MoWaS, Cell Broadcast, NINA, KATWARN, or competent authorities
-- Operating cellular radio infrastructure
-- Guaranteeing alert reception or user acknowledgement
-- Autonomous AI-generated public warnings
-- Collecting continuous user location histories
-
-## Initial success measures
-
-- Correct lifecycle transitions under automated tests
-- No publication without required approvals
-- No loss of committed alert state during tested worker restarts
-- Deterministic handling of duplicate dispatch jobs
-- CAP validation against maintained fixtures
-- Measured recovery time and recovery point in drills
-- Accessibility and security findings tracked to closure
+## Measures
+Evaluate time to assess and authorize, traceability, false-alert resistance, usability under stress, accessibility, recovery time, behavior during network partitions, and accurate reporting of delivery state.
