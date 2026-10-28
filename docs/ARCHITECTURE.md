@@ -1,71 +1,32 @@
 # Architecture
 
-## Initial shape
+## Architecture goals
+AEGIS should be modular, auditable, resilient to partial failure, and safe by default. The initial design is a modular monolith with background workers—not premature microservices. Modules must have explicit interfaces so components can be separated later when scale, isolation, or operational evidence justifies it.
 
-Start with a modular monolith plus background workers. Keep module boundaries explicit; split services only when scale, isolation, or operational ownership justifies the added complexity.
+## Initial logical modules
+- **Identity and access:** user authentication, roles, service identities, scoped permissions, revocation.
+- **Incident intake:** reports, provenance, timestamps, geospatial scope, evidence references.
+- **Assessment:** source reliability, corroboration, uncertainty, conflicts, and confidence history.
+- **Alert lifecycle:** draft, review, approval, scheduled, dispatched, acknowledged, expired, cancelled.
+- **Policy engine:** deterministic rules for who may do what, where, and under which authorization.
+- **Channel adapters:** simulation first; future channels individually authorized and isolated.
+- **Audit ledger:** append-oriented events for sensitive actions, approvals, and delivery evidence.
+- **Operations:** health, metrics, backup/restore, key rotation, and safe shutdown.
 
-```text
-Operator / Reviewer
-        |
-   Web Console
-        |
-   API Gateway
-        |
-   Warning Core ---- PostgreSQL + PostGIS
-        |                    |
-        |              Transactional Outbox
-        |                    |
-        +-------------- Dispatcher Worker
-                              |
-                Channel Adapter Interface
-                  /       |        \
-             Test sink   Web/API   Future authorised adapters
-```
+## Trust boundaries
+Treat users, nodes, data sources, AI output, external adapters, and imported messages as potentially untrusted. Validate all inputs. Imported formats (including CAP) do not bypass local authorization. Joining a network does not grant alert-issuing privileges.
 
-## Modules
+## Distributed operation
+Long-term nodes may be independently operated. Each node has a cryptographic identity, scoped trust level, revocation status, and explicit capabilities. Synchronization must handle partitions, duplicates, replay, stale messages, and conflicting updates. After reconnection, reconciliation must preserve provenance and disagreement rather than silently overwrite it.
 
-- **Console:** warning authoring, geographic preview, review queue, status and audit views.
-- **Warning Core:** validation, lifecycle, versioning, authorization checks.
-- **Geo module:** geometry validation, spatial queries, target-area calculations.
-- **CAP adapter:** import/export mapping, schema validation, extension handling.
-- **Outbox/dispatcher:** durable jobs, retries, backoff, idempotency keys, dead-letter handling.
-- **Channel adapters:** isolated implementation per channel; disabled unless configured and authorized.
-- **Audit subsystem:** append-oriented event records and integrity references.
-- **Observability:** metrics, structured logs, traces, health checks, and alerting.
+## AI boundary
+AI may summarize, classify, detect patterns, and suggest next steps. It must disclose uncertainty and evidence. Deterministic policy and authorization remain authoritative; AI cannot issue official alerts, expand its own permissions, or directly enable live dispatch.
 
-## Warning lifecycle
+## Communication and reach
+The architecture may support web interfaces and future gateways to existing alert systems, radio, or other channels. Actual reach depends on powered hardware, physical coverage, spectrum access, service providers, partner agreements, and applicable law. The software must not imply delivery to a person when only a gateway acknowledgement is available.
 
-Suggested lifecycle:
+## Security controls
+Least privilege; multi-factor authentication for privileged operators; secure secret storage; key rotation and revocation; signed events where appropriate; rate limits; idempotent dispatch jobs; replay protection; immutable or tamper-evident audit; encryption in transit and at rest; tested backup/restore; dependency scanning; and documented incident response.
 
-`DRAFT -> IN_REVIEW -> APPROVED -> ACTIVE -> EXPIRED`
-
-Additional controlled transitions: `REJECTED`, `CANCELLED`. Updating an active alert creates a new immutable version linked to the same logical alert. Expiry must be enforced server-side.
-
-## Reliability patterns
-
-- Persist warning state and dispatch intent in one database transaction using an outbox.
-- Use at-least-once job processing with idempotent handlers; do not claim exactly-once delivery across external channels.
-- Retry transient failures with bounded exponential backoff and jitter.
-- Separate permanent errors from retryable failures.
-- Keep per-channel state and delivery semantics distinct.
-- Ensure a dead-letter queue can be inspected and safely replayed.
-- Never rely on Redis as the sole durable record of critical warning state.
-
-## Data and standards
-
-- CAP 1.2 as an interoperability boundary.
-- PostgreSQL/PostGIS for alert metadata and geographic queries.
-- Store source payloads and normalised representations with explicit schema versions.
-- Validate all incoming XML securely; disable external entity resolution and protect against oversized or deeply nested documents.
-- Use UTC internally and preserve original source timestamps where needed.
-
-## Deployment evolution
-
-1. Local development via Docker Compose.
-2. Single-node test deployment with backups and monitoring.
-3. Separate staging and production environments.
-4. Multi-zone deployment, independent secrets management, and tested disaster recovery only after requirements are defined.
-
-## Scaling principle
-
-Do not promise national scale based on an early prototype. Establish workload assumptions, burst profiles, channel limits, recovery targets, and independent performance tests before capacity commitments.
+## Failure behavior
+If identity, authorization, policy, or audit integrity cannot be established, sensitive actions fail closed. Read-only access and clearly marked degraded operation may remain available. No automatic failover may silently broaden authority.
