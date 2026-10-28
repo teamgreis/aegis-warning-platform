@@ -1,24 +1,25 @@
 # GitHub repository setup
 
-Recommended repository name: `aegis-warning-platform`
-Recommended owner: `teamgreis`
-Recommended visibility: **Private** while the code and proprietary terms are being finalised.
-Description: `A modular, multi-channel emergency-warning platform focused on secure alert lifecycle management, geospatial targeting, interoperability, and resilience.`
-Topics: `emergency-alerts`, `public-safety`, `cap`, `fastapi`, `postgis`, `disaster-response`, `security`
+## Repository
+- Owner: `teamgreis`
+- Repository: `aegis-warning-platform`
+- Main development branch: `main`
 
-## Initial setup using GitHub CLI
+## Access and protection
+- Grant the minimum required permissions to collaborators and integrations.
+- Prefer short-lived, narrowly scoped credentials and revoke unused integrations.
+- Never share passwords, personal access tokens, private keys, recovery codes, or session cookies in issues, chats, or commits.
+- Enable branch protection when team workflow supports it: require pull-request review, passing checks, and no force-pushes to the protected branch.
+- Review GitHub App access at the account/organization settings and restrict it to the specific repository where possible.
 
-Run from the extracted repository directory after installing and authenticating `gh`:
+## Suggested repository hygiene
+- Keep secrets out of the repository; use environment variables or a secrets manager for local development.
+- Add automated formatting, linting, type checks, and tests as implementation is introduced.
+- Use issue templates for bugs, feature proposals, security concerns, and architecture decisions.
+- Keep release notes and update the roadmap when scope changes.
 
-```bash
-gh auth status
-git init
-git add .
-git commit -m "chore: initialize AEGIS project foundation"
-git branch -M main
-gh repo create teamgreis/aegis-warning-platform --private --source=. --remote=origin --push
-```
+## Safe development
+Early environments must use synthetic data and simulated dispatch sinks. Do not add live emergency endpoints or credentials. Any future production integration needs documented authorization, partner approval, security/privacy review, monitoring, and a tested disable/rollback procedure.
 
-If the repository already exists, create it in GitHub first and use its actual remote URL instead of `gh repo create`.
-
-Before publishing, replace the copyright holder in `LICENSE` and `README.md` with the correct legal owner. Keep the repository private until ownership and the proprietary license text have been reviewed.
+## Pushing changes
+Use GitHub's web editor, GitHub Desktop, Git, or an authorized development integration. Review the diff before committing. If an integration returns HTTP 403, check that it is installed for the correct owner/repository and has the required contents write permission; do not work around the restriction by exposing credentials.
