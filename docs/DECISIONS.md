@@ -1,36 +1,39 @@
 # Architecture Decision Records
 
+Decision status may be Proposed, Accepted, Superseded, or Rejected. Revisit decisions when evidence or constraints change.
+
 ## ADR-001: Modular monolith for MVP
-**Status:** Proposed
+**Status:** Accepted  
+Start with one deployable application and background workers. Keep module boundaries explicit; split services only when scale, isolation, or operational evidence justifies it. This reduces early operational complexity.
 
-**Decision:** Begin with a modular monolith and separate background workers.
+## ADR-002: Server-side prototype
+**Status:** Accepted  
+The initial product is server-side software with a browser-based operator console. Native desktop and mobile apps are not MVP requirements.
 
-**Rationale:** Faster iteration, fewer deployment failure modes, clear module boundaries, and easier end-to-end testing. Split components only when justified by measured scale or security isolation.
+## ADR-003: Simulation-first dispatch
+**Status:** Accepted  
+All channel adapters default to simulation. Real dispatch stays disabled until legal authorization, partner approval, independent review, and release gates are documented.
 
-## ADR-002: CAP 1.2 as interoperability boundary
-**Status:** Proposed
+## ADR-004: Human and policy authorization
+**Status:** Accepted  
+AI can provide decision support but cannot bypass deterministic policy, operator permissions, or required human approval. Official alerts and AEGIS-generated advisories must be distinguishable.
 
-**Decision:** Support CAP 1.2 import/export while maintaining a validated internal domain model.
+## ADR-005: Decentralized, scoped trust
+**Status:** Proposed  
+Nodes may be independently operated, but network membership alone grants no alert authority. Identity, capabilities, trust, and revocation are explicit and auditable.
 
-**Rationale:** Standardised exchange without coupling every internal component to XML structures.
+## ADR-006: Internal lifecycle plus standards adapters
+**Status:** Proposed  
+Maintain an internal, auditable lifecycle and use adapters for formats such as CAP. Imported messages must pass local validation and authorization rules.
 
-## ADR-003: PostgreSQL/PostGIS for durable state and geography
-**Status:** Proposed
+## ADR-007: Privacy by minimization
+**Status:** Accepted  
+Collect only necessary information, limit use to stated purposes, define retention, and restrict access. Use synthetic data during development.
 
-**Decision:** Use PostgreSQL with PostGIS for warning metadata, geometry, versions, approvals, audit references, and transactional outbox.
+## ADR-008: Delivery semantics must be explicit
+**Status:** Accepted  
+Record message creation, approval, dispatch attempt, gateway acknowledgement, and confirmed reception as separate states. Never equate gateway acknowledgement with human receipt.
 
-**Rationale:** Strong transactions and mature spatial querying.
-
-## ADR-004: Transactional outbox and at-least-once processing
-**Status:** Proposed
-
-**Decision:** Persist dispatch intent with warning changes and process jobs asynchronously with idempotent handlers.
-
-**Rationale:** Avoid a gap between committing a warning and creating a dispatch job. Do not claim exactly-once delivery to external systems.
-
-## ADR-005: Test-only by default
-**Status:** Proposed
-
-**Decision:** The initial product has no enabled real-world distribution adapter. Test alerts are clearly marked and isolated.
-
-**Rationale:** Prevent accidental or unauthorised public alarm publication during development.
+## ADR-009: Fail closed for authority-critical actions
+**Status:** Accepted  
+If identity, policy, authorization, or audit integrity is uncertain, sensitive actions fail closed. Any offline authority must be narrowly pre-authorized, time-bounded, logged, and reconciled.
