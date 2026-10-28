@@ -1,54 +1,30 @@
 # Security Baseline
 
-AEGIS is safety-critical in its intended domain. The MVP is test-only and must not issue real public alerts.
+AEGIS is safety-sensitive by intended use, but the current project is an early prototype. It must not issue real public alerts. Development and tests use synthetic data and simulated dispatch only.
 
-## Threats to address
+## Threats
+- Compromised operator accounts or service credentials.
+- Malicious or misconfigured nodes.
+- Forged, replayed, stale, duplicated, or manipulated reports.
+- Unauthorized alert creation, approval, or dispatch.
+- AI-generated misinformation or overconfident summaries.
+- Audit tampering, data leakage, denial of service, and unsafe recovery.
+- Confusion between official alerts, test messages, and AEGIS advisories.
 
-- Compromised operator account
-- Unauthorised or mistaken publication
-- Malicious insider or reviewer collusion
-- Forged, replayed, modified, or stale warning payload
-- API abuse and denial of service
-- Malicious CAP/XML input
-- Database or signing-key compromise
-- Duplicate, delayed, reordered, or lost dispatch jobs
-- Confusion between test alerts and real alerts
-- Compromised build or deployment pipeline
+## Baseline controls
+- Least privilege and explicit role/capability checks.
+- Strong authentication for privileged accounts; MFA where available.
+- Cryptographic node/service identities with key rotation and revocation.
+- Input validation, schema versioning, replay protection, idempotency, and rate limits.
+- Signed or tamper-evident audit events for sensitive transitions.
+- Encryption in transit and at rest; no secrets in source control or logs.
+- Purpose limitation, data minimization, retention schedules, and access review.
+- AI treated as untrusted decision support; no authority escalation.
+- Simulation-only adapters by default and hard separation from production credentials.
+- Tested backups, restore procedures, and fail-closed behavior for authority-critical operations.
 
-## Required controls
+## Required tests
+Attempt unauthorized creation/approval/dispatch; tamper with event history; replay and duplicate messages; revoke a node key; interrupt connectivity during approval or dispatch; provide conflicting sources; fail the audit store; and restore from backup. Verify that the system preserves uncertainty and does not silently broaden privileges.
 
-- OIDC authentication and MFA for privileged roles
-- Least-privilege RBAC and separation of duties
-- Two-person approval for publication
-- Strict server-side validation and state-machine enforcement
-- Immutable alert-version references
-- Cryptographic signatures with key rotation and revocation procedures
-- Secrets held outside source control
-- TLS in transit and encryption at rest where appropriate
-- Rate limits, request-size limits, secure headers, and dependency scanning
-- Structured audit trail with external integrity protection for higher assurance
-- Backup isolation and tested restoration
-- Secure XML parser configuration for CAP
-- Separate development, staging, and production credentials
-- Explicit test banners and production dispatch disabled by default
-- Security incident response and disclosure process
-
-## Signing model
-
-The exact signature envelope and trust model must be selected through an ADR. Do not invent a custom cryptographic algorithm. Use well-reviewed libraries and standard algorithms. Store private keys in a suitable KMS/HSM for production; do not place private keys in the application database or repository.
-
-## Publication guardrails
-
-- No public-distribution adapter is enabled by default.
-- No single ordinary user can bypass the approval workflow.
-- High-severity publication requires explicit role and policy checks.
-- Revocation and key-compromise procedures must be documented.
-- A test environment must not possess production signing keys or channel credentials.
-
-## Reporting a vulnerability
-
-Do not publish exploit details or sensitive operational information in a public issue. Until a dedicated security contact is established, report findings privately to the repository owner. Add a verified security contact before external pilot activity.
-
-## Release gate
-
-No real-world operational use until qualified independent security testing, privacy/legal review, operational exercises, and formal channel authorization are complete.
+## Before any live integration
+Require a documented threat model, privacy assessment, legal review, partner authorization, independent security review, end-to-end exercises, operational ownership, monitoring, rollback/disable procedures, and explicit release approval.
